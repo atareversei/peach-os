@@ -1,7 +1,16 @@
-ORG 0x7c00                 ; It's a fake offset for the assembler — the binary starts at 0, but the CPU will load and run it from address 0x7C00.
+ORG 0
 BITS 16                    ; All instructions and registers will be interpreted as 16-bit (AX, BX, SI, etc.).
 
+jmp 0x7c0:start
 start:
+    cli
+    mov ax, 0x7c0
+    mov ds, ax
+    mov es, ax
+    mov ax, 0x00
+    mov ss, ax
+    mov sp, 0x7c00
+    sti
     mov si, message
     call print
     jmp $
