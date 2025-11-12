@@ -1,8 +1,24 @@
 ORG 0
 BITS 16                    ; All instructions and registers will be interpreted as 16-bit (AX, BX, SI, etc.).
 
-jmp 0x7c0:start
+_start:
+    jmp short start
+    nop
+
+times 33 db 0              ; Some BIOS implementations look for BIOS Parameter Block values when we test our bootloader
+                           ; with USB. To overcome that issues we fill 33 bytes representing those values with 0.
+
+handle_zero:
+    mov ah, 0eh
+    mov al, 'A'
+    mov bx, 0x00
+    int 0x10
+    iret
+
 start:
+    jmp 0x7c0:step2
+
+step2:
     cli
     mov ax, 0x7c0
     mov ds, ax
@@ -11,6 +27,11 @@ start:
     mov ss, ax
     mov sp, 0x7c00
     sti
+
+    mov word[ss:0x00], handle_zero
+    mov word[ss:0x02], 0x7c0
+    int 0
+
     mov si, message
     call print
     jmp $
